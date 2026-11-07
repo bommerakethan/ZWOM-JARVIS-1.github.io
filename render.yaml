@@ -1,0 +1,26 @@
+services:
+  - type: web
+    name: zwom-jarvis-discord
+    runtime: python
+    plan: free
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /
+    envVars:
+      - key: DISCORD_PUBLIC_KEY
+        sync: false
+      - key: DISCORD_APPLICATION_ID
+        sync: false
+      - key: DISCORD_BOT_TOKEN
+        sync: false
+      - key: JARVIS_API_KEY
+        sync: false
+      - key: JARVIS_BASE_URL
+        value: https://api.openai.com/v1
+      - key: JARVIS_MODEL
+        value: gpt-4o-mini
+      - key: FRONTEND_ORIGIN
+        value: https://bommerakethan.github.io
+      - key: LOG_LEVEL
+        value: INFO

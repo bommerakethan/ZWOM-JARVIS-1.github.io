@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#090c10"><title>JARVIS | Discord Control Console</title>
+<style>
+:root{--bg:#080b10;--panel:#101821;--gold:#ffb64d;--gold2:#ff8d2c;--text:#edf3f8;--muted:#92a0af;--line:#ffb64d38;--green:#62e5a6;--red:#ff7474}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 80% 0,#35200c 0,transparent 35%),var(--bg);color:var(--text);font:14px/1.6 "Segoe UI",Arial,sans-serif;min-height:100vh}
+a{color:var(--gold);text-decoration:none}.top{border-bottom:1px solid var(--line);background:#090e15d9;padding:18px 24px}.nav{max-width:1080px;margin:auto;display:flex;align-items:center;justify-content:space-between;gap:18px}.brand{letter-spacing:3px;color:var(--gold);font-weight:700}.nav a{font-size:12px}
+main{max-width:1080px;margin:42px auto;padding:0 20px}.eyebrow{font-size:10px;letter-spacing:3px;color:var(--gold)}h1{font-size:clamp(30px,5vw,45px);margin:8px 0}.intro{color:var(--muted);max-width:700px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:28px}.panel{border:1px solid var(--line);background:linear-gradient(145deg,#131d28,#0b1118);border-radius:10px;padding:23px;box-shadow:0 18px 48px #0005}.panel h2{font-size:13px;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold);margin:0 0 17px}
+label{display:block;font-size:12px;color:#bac5cf;margin:14px 0 6px}input{width:100%;padding:12px;border-radius:6px;background:#080e15;border:1px solid #334251;color:var(--text);outline:none}input:focus{border-color:var(--gold);box-shadow:0 0 0 3px #ffb64d15}
+.buttons{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}.btn{border:1px solid var(--gold);border-radius:5px;padding:10px 15px;background:linear-gradient(120deg,var(--gold),var(--gold2));color:#1a1209;font-weight:700;font-size:11px;letter-spacing:1px;text-transform:uppercase;cursor:pointer}.btn.alt{background:transparent;color:var(--gold)}
+.status{display:flex;gap:9px;align-items:center;color:var(--muted);font-size:12px;margin-top:15px;min-height:22px}.dot{width:8px;height:8px;border-radius:50%;background:#677381}.dot.good{background:var(--green);box-shadow:0 0 10px var(--green)}.dot.bad{background:var(--red);box-shadow:0 0 10px var(--red)}
+.endpoint{margin-top:15px;background:#080e15;border:1px solid #2b3948;border-radius:6px;padding:13px;overflow-wrap:anywhere}.endpoint small{display:block;color:var(--muted);font-size:10px;margin-bottom:4px}.endpoint strong{font-size:12px;color:#ffd18b}
+.notice{margin-top:17px;padding:12px 14px;border-left:2px solid var(--gold);background:#ffb64d0c;color:#b9c4cf;font-size:12px}
+ol{padding-left:20px;margin:0;color:#b9c4cf}li{padding:0 0 14px 5px}li b{color:#f0f4f7}code{color:#ffd18b;background:#080e15;padding:2px 5px;border-radius:3px}
+.full{margin-top:18px}.full p{color:var(--muted);font-size:12px}
+footer{text-align:center;padding:30px;color:#6e7a87;font-size:10px;letter-spacing:1px}
+@media(max-width:760px){.grid{grid-template-columns:1fr}.nav{align-items:flex-start}}
+</style></head><body>
+<div class="top"><div class="nav"><a class="brand" href="./">ZWOM / J.A.R.V.I.S.</a><a href="./">← Back to main interface</a></div></div>
+<main><div class="eyebrow">DISCORD APPLICATION / CONTROL CONSOLE</div><h1>Interaction endpoint</h1><p class="intro">Configure the public HTTPS address of your JARVIS backend and run a basic health check. This console is a static frontend; Discord interactions must be handled by the deployed Python service.</p>
+<div class="grid">
+<section class="panel"><h2>Connection diagnostics</h2>
+<label for="backend">Backend base URL</label><input id="backend" type="url" placeholder="https://your-service.onrender.com">
+<div class="buttons"><button class="btn" id="check">Test backend</button><button class="btn alt" id="save">Save URL</button></div>
+<div class="status"><span class="dot" id="dot"></span><span id="status">Awaiting connection test.</span></div>
+<div class="endpoint"><small>Discord Interactions Endpoint URL</small><strong id="endpoint">https://YOUR-BACKEND/api/discord/interactions</strong></div>
+<div class="notice">The test checks GET / only. A successful health check does not prove Discord signature validation or PING verification. Do not paste bot tokens or API keys here.</div>
+</section>
+<section class="panel"><h2>Deployment checklist</h2><ol>
+<li><b>Deploy backend on Render.</b><br>Use the <code>backend/</code> folder in this same GitHub repository.</li>
+<li><b>Set secret environment variables.</b><br>Configure Discord public key, application ID, bot token and AI provider key in Render. Never commit secrets.</li>
+<li><b>Register the slash command.</b><br>Run <code>python register_command.py</code> locally with the required environment values.</li>
+<li><b>Configure Discord.</b><br>Paste the exact endpoint URL shown here into Developer Portal → General Information → Interactions Endpoint URL.</li>
+<li><b>Verify.</b><br>Discord sends a signed PING. The backend validates the signature and returns <code>{"type":1}</code>.</li>
+</ol></section></div>
+<section class="panel full"><h2>Required routes</h2><div class="endpoint"><small>Health check</small><strong>GET /</strong></div><div class="endpoint"><small>Discord interactions</small><strong>POST /api/discord/interactions</strong></div><p>GitHub Pages cannot run Python. Keep the website on GitHub Pages and run the backend as a web service on Render, sourced from this same repository.</p></section>
+</main><footer>ZWOM JARVIS · SECURE CONFIGURATION REQUIRED</footer>
+<script>
+const input=document.getElementById('backend'),endpoint=document.getElementById('endpoint'),status=document.getElementById('status'),dot=document.getElementById('dot');
+const base=()=>input.value.trim().replace(/\/+$/,'');
+function refresh(){endpoint.textContent=base()?base()+'/api/discord/interactions':'https://YOUR-BACKEND/api/discord/interactions'}input.addEventListener('input',refresh);
+document.getElementById('save').onclick=()=>{try{const u=new URL(base());if(u.protocol!=='https:')throw 0;localStorage.setItem('zwomJarvisBackend',base());status.textContent='Backend URL saved in this browser.';dot.className='dot good'}catch(e){status.textContent='Enter a valid public HTTPS base URL.';dot.className='dot bad'}};
+document.getElementById('check').onclick=async()=>{let u;try{u=new URL(base());if(u.protocol!=='https:')throw 0}catch(e){status.textContent='Enter a valid public HTTPS base URL first.';dot.className='dot bad';return}
+status.textContent='Checking backend health…';dot.className='dot';try{const r=await fetch(base()+'/',{method:'GET'});if(!r.ok)throw Error('HTTP '+r.status);const d=await r.json();status.textContent='Backend responded: '+(d.status||'HTTP '+r.status)+'.';dot.className='dot good'}catch(e){status.textContent='Health check failed. Check deployment, service logs and CORS settings. '+e.message;dot.className='dot bad'}};
+try{const v=localStorage.getItem('zwomJarvisBackend');if(v){input.value=v;refresh()}}catch(e){}
+</script></body></html>
